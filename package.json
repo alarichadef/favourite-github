@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@huchenme/github-trending": "^2.1.1",
+    "blockstack": "^19.3.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",

@@ -6,7 +6,7 @@ import {
 } from '@huchenme/github-trending';
 import { Button, Image, Segment, Header, Dropdown, Divider, Dimmer, Loader, Container, Card, Icon} from "semantic-ui-react";
 import 'semantic-ui-css/semantic.min.css'
-
+import {Blockstack, useBlockstack} from './useStack'
 
 function App() {
   const [repos, setRepos] = React.useState([]);
@@ -15,6 +15,7 @@ function App() {
   const [langsDrop, setLangsDrop] = React.useState(null);
   const [period, setPeriod] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [ session, { login, logout, putFile, getFile } ] = useBlockstack();
 
   const periodOptions = [
     {
@@ -35,15 +36,16 @@ function App() {
   ];
 
   React.useEffect(() => {
-
     const mapToLanguages = ({ name }) => ({ key: name, text: name, value: name });
     let tmpLanguages = languages.map(mapToLanguages);
     setLangsDrop(tmpLanguages);
-    let tmpRepos = localStorage.getItem('myRepos');
-    if(tmpRepos){
-      setMyRepos(JSON.parse(tmpRepos));
-    };
-  }, []);
+    getFile('myRepos').then(response => {
+      let tmpRepos = response;
+      if(tmpRepos){
+        setMyRepos(JSON.parse(tmpRepos));
+      };
+    });
+  }, [getFile]);
   
   React.useEffect(() => {
     setLoading(true);
@@ -63,11 +65,12 @@ function App() {
     console.warn(tmpRepos);
     tmpRepos.push(repo);
     setMyRepos(tmpRepos);
-    localStorage.setItem('myRepos', JSON.stringify(tmpRepos));
-    tmpRepos = [...repos].filter(myrepo => myrepo.name !== repo.name);
-    setRepos(tmpRepos);
+    putFile('myRepos', JSON.stringify(tmpRepos)).then(response => {
+      tmpRepos = [...repos].filter(myrepo => myrepo.name !== repo.name);
+      setRepos(tmpRepos);
+    });
 
-  }, [myRepos, setMyRepos, repos]);
+  }, [myRepos, setMyRepos, repos, putFile]);
 
   const removeFromFavourite = React.useCallback((repo) => {
     console.warn('tmprepos before', repos);
@@ -76,9 +79,10 @@ function App() {
     console.warn('tmprepos', tmpRepos);
     setRepos(tmpRepos);
     let tmpMyRepos = [...myRepos].filter(myrepo => myrepo.name !== repo.name);
-    setMyRepos(tmpMyRepos);
-    localStorage.setItem('myRepos', JSON.stringify(tmpMyRepos));
-  },[myRepos, repos]);
+    putFile('myRepos', JSON.stringify(tmpMyRepos)).then(response => {
+      setMyRepos(tmpMyRepos);
+    });
+  },[myRepos, repos, putFile]);
 
   const renderRepos = React.useCallback(() => {
     let tab = [];
@@ -176,56 +180,62 @@ function App() {
   }, [myRepos, removeFromFavourite]);
 
   return (
-    <>
-    <Container>
-      <Header>
-
-      </Header>
-      <Segment>
-        <Dropdown
-            clearable
-            fluid
-            search
-            options={langsDrop}
-            selection
-            value={lang}
-            onChange={(synth, data) => setLang(data.value)}
-            placeholder="Pick a language"
-        />
-        <Divider/>
-        <Dropdown
-            clearable
-            fluid
-            search
-            options={periodOptions}
-            selection
-            value={period}
-            onChange={(synth, data) => setPeriod(data.value)}
-            placeholder="Pick a period"
-        />
-      </Segment>
-    {loading && <Dimmer active inverted>
-        <Loader>
-            Loading ...
-        </Loader>
-    </Dimmer>}
-    <Header as='h2' icon textAlign='center'>
-      <Icon name='favorite' circular />
-      {myRepos.length ? <Header.Content>My saved repositories</Header.Content> :  <Header.Content>No repositories saved, start browsing !</Header.Content>}
-    </Header>
-     <Card.Group doubling itemsPerRow={5} stackable>
-      {renderMyRepos()}
-      </Card.Group>
-      <Divider/>
+    <Blockstack>
+      <>
+      <Container>
+        <Header as='h1' icon textAlign='center'>
+          <Icon name='github' circular />
+          <Header.Content>What's the current trend in github today ? 
+            {!session ? <Button floated="right" color="blue" onClick={login}>Login</Button> 
+            :  <Button floated="right" color="red" onClick={logout}>Log out</Button>}
+          </Header.Content>
+        </Header>
+        <Segment>
+          <Dropdown
+              clearable
+              fluid
+              search
+              options={langsDrop}
+              selection
+              value={lang}
+              onChange={(synth, data) => setLang(data.value)}
+              placeholder="Pick a language"
+          />
+          <Divider/>
+          <Dropdown
+              clearable
+              fluid
+              search
+              options={periodOptions}
+              selection
+              value={period}
+              onChange={(synth, data) => setPeriod(data.value)}
+              placeholder="Pick a period"
+          />
+        </Segment>
+      {loading && <Dimmer active inverted>
+          <Loader>
+              Loading ...
+          </Loader>
+      </Dimmer>}
       <Header as='h2' icon textAlign='center'>
-      <Icon name='github' circular />
-      {repos.length ? <Header.Content>Explore repositories</Header.Content> :  <Header.Content>No repos found, start a new search !</Header.Content> }
-    </Header>
-    {!loading && <Card.Group doubling itemsPerRow={5} stackable>
-      {renderRepos()}
-      </Card.Group>}
-    </Container>
-    </>
+        <Icon name='favorite' circular />
+        {myRepos.length ? <Header.Content>My saved repositories</Header.Content> :  <Header.Content>No repositories saved, start browsing !</Header.Content>}
+      </Header>
+      <Card.Group doubling itemsPerRow={5} stackable>
+        {renderMyRepos()}
+        </Card.Group>
+        <Divider/>
+        <Header as='h2' icon textAlign='center'>
+        <Icon name='search' circular />
+        {repos.length ? <Header.Content>Explore repositories</Header.Content> :  <Header.Content>No repos found, start a new search !</Header.Content> }
+      </Header>
+      {!loading && <Card.Group doubling itemsPerRow={5} stackable>
+        {renderRepos()}
+        </Card.Group>}
+      </Container>
+      </>
+    </Blockstack>
   );
 
 }
