@@ -4,7 +4,7 @@ import {
   languages,
   fetchRepositories
 } from '@huchenme/github-trending';
-import { Button, Image, Segment, Header, Dropdown, Divider, Dimmer, Loader, Container, Card, Icon} from "semantic-ui-react";
+import { Button, Image, Segment, Header, Dropdown, Divider, Dimmer, Loader, Container, Card, Icon, Label} from "semantic-ui-react";
 import 'semantic-ui-css/semantic.min.css'
 import {Blockstack, useBlockstack} from './useStack'
 
@@ -122,18 +122,19 @@ function App() {
           </p>
       </Card.Content>
         <Card.Content extra>
+          {session ?
           <Button basic color='green'
             onClick={() => addToFavourite(repo)}
           >
             Add to favourite
-          </Button>
+          </Button> : <Label color="green">Please login to add to your favourite</Label>}
       </Card.Content>
 
       </Card>
       )
     });
     return tab;
-  },[myRepos, repos, addToFavourite]);
+  },[myRepos, repos, addToFavourite, session]);
 
   const renderMyRepos = React.useCallback(() => {
     let tab = [];
