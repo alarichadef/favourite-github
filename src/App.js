@@ -39,13 +39,15 @@ function App() {
     const mapToLanguages = ({ name }) => ({ key: name, text: name, value: name });
     let tmpLanguages = languages.map(mapToLanguages);
     setLangsDrop(tmpLanguages);
-    getFile('myRepos').then(response => {
-      let tmpRepos = response;
-      if(tmpRepos){
-        setMyRepos(JSON.parse(tmpRepos));
-      };
-    });
-  }, [getFile]);
+    if(session) {
+      getFile('myRepos').then(response => {
+        let tmpRepos = response;
+        if(tmpRepos){
+          setMyRepos(JSON.parse(tmpRepos));
+        };
+      });
+    }
+  }, [getFile, session]);
   
   React.useEffect(() => {
     setLoading(true);
