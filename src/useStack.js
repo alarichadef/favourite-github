@@ -3,6 +3,7 @@ import * as blockstack from 'blockstack';
 const BlockstackContext = React.createContext({
 	session: null
 });
+
 export function Blockstack({ children }) {
 	const [ session, setSession ] = React.useState();
 	return (
@@ -14,29 +15,36 @@ export function Blockstack({ children }) {
 		</BlockstackContext.Provider>
 	);
 }
+
 export function useBlockstack({ origin=window.location.origin, onSignInError=()=>{} }={}) {
 	const user_session_ref = React.useRef(new blockstack.UserSession());
 	const user_session = user_session_ref.current;
 	// Set as state to force refreshes
-	const { session, setSession } = React.useContext(BlockstackContext);
+	const context = React.useContext(BlockstackContext);
+	const { session, setSession } = context;
+
 	const login = React.useCallback(() => {
 		return user_session.redirectToSignIn(origin);
 	}, [user_session, origin]);
+
 	const logout = React.useCallback(() => {
 		return user_session.signUserOut();
 	}, [user_session]);
+
 	const putFile = React.useCallback((name, data) => {
 		if(!user_session.isUserSignedIn()) {
 			return Promise.reject(new Error('Blockstack user not signed in'));
 		}
 		return user_session.putFile(name, data);
 	}, [user_session]);
+
 	const getFile = React.useCallback((name) => {
 		if(!user_session.isUserSignedIn()) {
 			return Promise.reject(new Error('Blockstack user not signed in'));
 		}
 		return user_session.getFile(name);
 	}, [user_session]);
+
 	if(!user_session.isUserSignedIn() && user_session.isSignInPending()) {
 		user_session.handlePendingSignIn().then(() => {
 			if (window.history && window.location.search) {
@@ -47,6 +55,7 @@ export function useBlockstack({ origin=window.location.origin, onSignInError=()=
 				);
 			}
 			let user_data = user_session.loadUserData();
+			console.warn("Setting session", context);
 			setSession(user_data);
 		}).catch(e => {
 			console.error(e);
@@ -55,6 +64,7 @@ export function useBlockstack({ origin=window.location.origin, onSignInError=()=
 	}
 	if(!session && user_session.isUserSignedIn()) {
 		let user_data = user_session.loadUserData();
+		console.warn("Setting session", context);
 		setSession(user_data);
 	}
 	return [ session, { putFile, getFile, login, logout } ];

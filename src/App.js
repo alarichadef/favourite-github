@@ -184,7 +184,6 @@ function App() {
 
   return (
     <Blockstack>
-      <>
       <Container>
         <Header as='h1' icon textAlign='center'>
           <Icon name='github' circular />
@@ -237,7 +236,6 @@ function App() {
         {renderRepos()}
         </Card.Group>}
       </Container>
-      </>
     </Blockstack>
   );
 
