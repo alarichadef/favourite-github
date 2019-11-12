@@ -1,11 +1,9 @@
 import React from 'react';
 import * as blockstack from 'blockstack';
-const BlockstackContext = React.createContext({
-	session: null
-});
+const BlockstackContext = React.createContext(null);
 
 export function Blockstack({ children }) {
-	const [ session, setSession ] = React.useState();
+	const [ session, setSession ] = React.useState(null);
 	return (
 		<BlockstackContext.Provider value={{
 			session,
@@ -21,8 +19,10 @@ export function useBlockstack({ origin=window.location.origin, onSignInError=()=
 	const user_session = user_session_ref.current;
 	// Set as state to force refreshes
 	const context = React.useContext(BlockstackContext);
+	if(!context) {
+		throw new Error(`[useBlockstack] useBlockstack must have <Blockstack> as a parent component`);
+	}
 	const { session, setSession } = context;
-
 	const login = React.useCallback(() => {
 		return user_session.redirectToSignIn(origin);
 	}, [user_session, origin]);

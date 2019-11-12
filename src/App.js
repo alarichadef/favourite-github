@@ -6,7 +6,7 @@ import {
 } from '@huchenme/github-trending';
 import { Button, Image, Segment, Header, Dropdown, Divider, Dimmer, Loader, Container, Card, Icon, Label} from "semantic-ui-react";
 import 'semantic-ui-css/semantic.min.css'
-import {Blockstack, useBlockstack} from './useStack'
+import {useBlockstack} from './useStack'
 
 function App() {
   const [repos, setRepos] = React.useState([]);
@@ -183,7 +183,6 @@ function App() {
   }, [myRepos, removeFromFavourite]);
 
   return (
-    <Blockstack>
       <Container>
         <Header as='h1' icon textAlign='center'>
           <Icon name='github' circular />
@@ -236,7 +235,6 @@ function App() {
         {renderRepos()}
         </Card.Group>}
       </Container>
-    </Blockstack>
   );
 
 }
