@@ -1,4 +1,4 @@
 /* /index.html 200
 # Optional: Redirect default Netlify subdomain to primary domain
-https://lucid-swanson-19ef2e.netlify.com/* https://trending-github.alarichadef.xyz/:splat 301!
+https://sleepy-lewin-e6e1ae.netlify.com/* https://trending-github.com/:splat 301!
 
