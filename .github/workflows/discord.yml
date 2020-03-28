@@ -16,7 +16,3 @@ jobs:
           DISCORD_ENABLED: true
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
-
-
-
-
