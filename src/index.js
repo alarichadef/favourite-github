@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { Blockstack } from './useStack';
+import { fetcher } from './tools/fetcher';
 
-ReactDOM.render(<Blockstack><App /></Blockstack>, document.getElementById('root'));
+fetcher.initialize('https://trending-github-api.herokuapp.com');
+
+ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
